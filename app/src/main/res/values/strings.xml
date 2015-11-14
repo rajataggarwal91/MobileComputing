@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SecondApp</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string-array name="planets_array">
+        <item>Location</item>
+        <item>Time</item>
+         </string-array>
+    <string-array name="actionItems_array">
+        <item>Wifi</item>
+        <item>Ring</item>
+    </string-array>
+    <string-array name="OnOff_array">
+        <item>Off</item>
+        <item>On</item>
+    </string-array>
+</resources>
