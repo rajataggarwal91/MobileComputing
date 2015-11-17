@@ -2,8 +2,11 @@ package com.example.rajat.secondapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,23 +17,37 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 
-public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener {
+
+public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener,LocationListener {
 
     static String ConditionValue;
     static String ActionValue;
     static String OnOffValue;
-
-
+    ArrayAdapter<CharSequence> adapter ;
+    ArrayAdapter<CharSequence> actionSpinnerAdapter;
+    ArrayAdapter<String> OnOffSpinnerAdapter;
+    ArrayList<String> options;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //startService(new Intent(getBaseContext(),MonitorService.class));
 
+       options=new ArrayList<String>();
+
+        options.add("ON");
+        options.add("OFF");
+
+        OnOffSpinnerAdapter =new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,options);
+        adapter = ArrayAdapter.createFromResource(this,
+                R.array.conditions_array, android.R.layout.simple_spinner_item);
+        actionSpinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.actionItems_array, android.R.layout.simple_spinner_item);
         Spinner ConditionSpinner = (Spinner) findViewById(R.id.ConditionSpinner);
 // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.planets_array, android.R.layout.simple_spinner_item);
+
 // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 // Apply the adapter to the spinner
@@ -40,8 +57,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
         Spinner actionSpinner = (Spinner) findViewById(R.id.ActionSpinner);
 // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> actionSpinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.actionItems_array, android.R.layout.simple_spinner_item);
+
 // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 // Apply the adapter to the spinner
@@ -51,8 +67,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
         Spinner OnOffSpinner = (Spinner) findViewById(R.id.OnOffSpinner);
 // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> OnOffSpinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.OnOff_array, android.R.layout.simple_spinner_item);
+
 // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 // Apply the adapter to the spinner
@@ -67,7 +82,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
             }
         });
 
-
+        getLocation();
 
 
     }
@@ -102,8 +117,18 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         switch (parent.getId()){
             case R.id.ConditionSpinner:
                 ConditionValue = selection;
+                break;
             case R.id.ActionSpinner:
                 ActionValue = selection;
+                if(ActionValue.equalsIgnoreCase("Ring")){
+                    options.clear();
+                    options.add("Normal");
+                    options.add("Vibrate");
+                    options.add("Silent");
+                    OnOffSpinnerAdapter.notifyDataSetChanged();
+                }
+
+                break;
             case R.id.OnOffSpinner:
                 OnOffValue = selection;
 
@@ -126,32 +151,79 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
         //Check if location was selected.
         //create a db entry for "if location = <value> Do <action> = <on/off>
+        //getLocation();
+
+        if(ActionValue.equals("Wifi"))
+            if(OnOffValue.equalsIgnoreCase("ON"))
+                 setWifi(true);
+            else
+                setWifi(false);
 
 
-
-        if(ActionValue=="wifi")
-            setWifi();
-        else if (ActionValue == "Ring")
-            setRing();
-
+        else if (ActionValue.equals("Ring"))
+        if(OnOffValue.equalsIgnoreCase("Normal"))
+            setRing("Normal");
+        else if(OnOffValue.equalsIgnoreCase("Vibrate"))
+             setRing("Vibrate");
+        else if(OnOffValue.equalsIgnoreCase("Silent"))
+             setRing("Silent");
 
            }
 
-    public void setWifi(){
+    public void setWifi(boolean val){
+        System.out.println("Wifi");
+        WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+        wifiManager.setWifiEnabled(val);
 
     }
 
-    public void setRing(){
+    public void setRing(String val){
+
+        AudioManager am;
+        am= (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
+
+    if (val.equals("Normal"))
+        am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+    if (val.equals("Silent"))
+        am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+    if (val.equals("Vibrate"))
+        am.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+
 
     }
 
     public void getLocation(){
         LocationManager locationManager = (LocationManager)
                 getSystemService(Context.LOCATION_SERVICE);
-        LocationListener locationListener = new MyLocationListener();
+
+
+      // LocationListener locationListener = new MyLocationListener();
         locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
+               LocationManager.GPS_PROVIDER, 5000, 10, this);
+
     }
 
 
+    @Override
+    public void onLocationChanged(Location location) {
+        String str = "Latitude: "+location.getLatitude()+"Longitude: "+location.getLongitude();
+        Toast.makeText(getBaseContext(), str, Toast.LENGTH_LONG).show();
+}
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+        System.out.println("1");
+        Toast.makeText(getBaseContext(), "Gps turned on ", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+        System.out.println("2");
+        Toast.makeText(getBaseContext(), "Gps turned off ", Toast.LENGTH_LONG).show();
+    }
 }

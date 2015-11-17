@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">SecondApp</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">Track Me</string>
     <string name="action_settings">Settings</string>
-    <string-array name="planets_array">
+    <string name="action_add">Add New Recipe</string>
+    <string name="action_modify">Modify Existing Recipe</string>
+    <string name="action_delete">Delete Recipe</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string-array name="conditions_array">
         <item>Location</item>
         <item>Time</item>
          </string-array>
@@ -16,4 +19,19 @@
         <item>Off</item>
         <item>On</item>
     </string-array>
+    <string-array name="RingType_array">
+        <item>Normal</item>
+        <item>Vibrate</item>
+        <item>Silent</item>
+    </string-array>
+    <string-array name="Entities">
+        <item> WiFi </item>
+        <item> Alarm </item>
+        <item> Ringer</item>
+        <item> Vibration </item>
+        <item> Airplane Mode</item>
+
+    </string-array>
+
+
 </resources>
